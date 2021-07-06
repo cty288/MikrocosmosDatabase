@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping assembly="MikrocosmosDatabase" namespace="MikrocosmosDatabase" xmlns="urn:nhibernate-mapping-2.2">
+	<class name="User" table="users" lazy="true" >
+		<id name="Id" column="id" />
+		<property name="Username">
+			<column name="username" sql-type="varchar(20)" not-null="true" />
+		</property>
+		<property name="Email">
+			<column name="email" sql-type="varchar(50)" not-null="true" />
+		</property>
+		<property name="Password">
+			<column name="password" sql-type="varchar(32)" not-null="true" />
+		</property>
+		<property name="LastLoginTime">
+			<column name="last_login_time" sql-type="datetime" not-null="false" />
+		</property>
+	</class>
+</hibernate-mapping>
