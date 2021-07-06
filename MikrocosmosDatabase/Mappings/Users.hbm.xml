@@ -5,8 +5,8 @@
 		<property name="Username">
 			<column name="username" sql-type="varchar(20)" not-null="true" />
 		</property>
-		<property name="Email">
-			<column name="email" sql-type="varchar(50)" not-null="true" />
+		<property name="Playfabid">
+			<column name="playfabid" sql-type="varchar(45)" not-null="true" />
 		</property>
 		<property name="Password">
 			<column name="password" sql-type="varchar(32)" not-null="true" />
@@ -14,5 +14,9 @@
 		<property name="LastLoginTime">
 			<column name="last_login_time" sql-type="datetime" not-null="false" />
 		</property>
+		<bag name="Players">
+			<key column="" />
+			<one-to-many class="Players" />
+		</bag>
 	</class>
 </hibernate-mapping>

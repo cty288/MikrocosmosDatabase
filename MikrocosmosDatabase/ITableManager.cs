@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MikrocosmosDatabase
 {
-    interface ITableManager<T> {
+     interface ITableManager<T> {
         bool Add(T obj);
         T GetById(int id);
 

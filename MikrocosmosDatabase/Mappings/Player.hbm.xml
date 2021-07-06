@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping assembly="MikrocosmosDatabase" namespace="MikrocosmosDatabase" xmlns="urn:nhibernate-mapping-2.2">
+	<class name="Player" table="players" lazy="true" >
+		<id name="Id" column="id" />
+		<many-to-one name="Users">
+			<column name="id_user" sql-type="int" not-null="false" />
+		</many-to-one>
+		<property name="DisplayName">
+			<column name="display_name" sql-type="varchar(50)" not-null="false" />
+		</property>
+		<property name="JoinedMatchid">
+			<column name="joined_matchid" sql-type="varchar(100)" not-null="false" />
+		</property>
+	</class>
+</hibernate-mapping>
