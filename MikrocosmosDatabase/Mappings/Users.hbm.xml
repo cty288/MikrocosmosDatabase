@@ -14,9 +14,5 @@
 		<property name="LastLoginTime">
 			<column name="last_login_time" sql-type="datetime" not-null="false" />
 		</property>
-		<bag name="Players">
-			<key column="" />
-			<one-to-many class="Players" />
-		</bag>
 	</class>
 </hibernate-mapping>

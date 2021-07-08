@@ -1,6 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace MikrocosmosDatabase
 {
@@ -10,8 +11,8 @@ namespace MikrocosmosDatabase
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public User SearchUsername(string username) {
-            return SearchByFieldNameUniqueResult("Username", username);
+        public async Task<User> SearchUsername(string username) {
+            return await SearchByFieldNameUniqueResult("Username", username);
         }
 
         /// <summary>
@@ -19,8 +20,8 @@ namespace MikrocosmosDatabase
         /// </summary>
         /// <param name="playfabid"></param>
         /// <returns></returns>
-        public User SearchPlayfabid(string playfabid) {
-            return SearchByFieldNameUniqueResult("Playfabid", playfabid);
+        public async Task<User> SearchPlayfabid(string playfabid) {
+            return await SearchByFieldNameUniqueResult("Playfabid", playfabid);
         }
 
         /// <summary>
@@ -31,15 +32,24 @@ namespace MikrocosmosDatabase
         /// <param name="playfabid"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public User AuthenticateUsernamePlayfabid(string username, string playfabid,string password) {
-            if (SearchUsername(username) == null && SearchPlayfabid(playfabid) == null) {
+        public async Task<User> AuthenticateUsernamePlayfabid(string username, string playfabid,string password) {
+            if (await SearchUsername(username) == null && await SearchPlayfabid(playfabid) == null) {
                 //new User
-                Add(new User() {Username = username, Playfabid = playfabid, Password = password});
-                return SearchUsername(username);
+                await Add(new User() {Username = username, Playfabid = playfabid, Password = password, LastLoginTime = DateTime.Now});
+                return await SearchUsername(username);
             }
 
 
-            return SearchByFieldNamesUniqueResult(new string[] {"Username", "Playfabid"}, new[] {username, playfabid});
+            User oldUserSearchResult = await SearchByFieldNamesUniqueResult(new string[] {"Username", "Playfabid"}, new[] {username, playfabid});
+            if (oldUserSearchResult == null) {
+                return null;
+            }
+
+            oldUserSearchResult.Password = password;
+            oldUserSearchResult.LastLoginTime=DateTime.Now;
+            
+            await Update(oldUserSearchResult);
+            return oldUserSearchResult;
         }
     }
 

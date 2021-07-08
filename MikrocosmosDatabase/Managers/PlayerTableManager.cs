@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
+using UnityEngine;
 
 namespace MikrocosmosDatabase
 {
-    class PlayerTableManager:TableBaseManager<Player> {
+    public class PlayerTableManager:TableBaseManager<Player> {
         /// <summary>
         /// Search the Player database object from the database, given the display name. (Null of not found)
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public Player SearchByDisplayName(string displayName) {
-            return SearchByFieldNameUniqueResult("DisplayName", displayName);
+        public async Task<Player> SearchByDisplayName(string displayName) {
+            return await SearchByFieldNameUniqueResult("DisplayName", displayName);
         }
 
         /// <summary>
@@ -19,8 +20,8 @@ namespace MikrocosmosDatabase
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public IList<Player> SearchByUser(User user) {
-            return SearchByFieldName("Users", user);
+        public async Task<IList<Player>> SearchByUser(User user) {
+            return await SearchByFieldName("Users", user);
         }
 
         /// <summary>
@@ -31,17 +32,20 @@ namespace MikrocosmosDatabase
         /// <param name="user"></param>
         /// <param name="displayName"></param>
         /// <returns></returns>
-        public bool AuthenticateDisplayName(User user, string displayName) {
-            Player searchResult = SearchByDisplayName(displayName);
+        public async Task<bool> AuthenticateDisplayName(User user, string displayName) {
+            Debug.Log($"Authenticating username {displayName}...");
+            Player searchResult = await SearchByDisplayName(displayName);
             if (searchResult == null) {
-                Add(new Player() {DisplayName = displayName, Users = user});
+                await Add(new Player() {DisplayName = displayName, Users = user});
+                Debug.Log($"Authenticating new player name {displayName} success! ");
                 return true;
             }
 
             if (searchResult.Users.Id == user.Id) {
+                Debug.Log($"Authenticating existing player name {displayName} success! ");
                 return true;
             }
-
+            Debug.Log($"Authenticating display name {displayName} failed! It doesn't belong to {user.Username}! ");
             return false;
         }
     }

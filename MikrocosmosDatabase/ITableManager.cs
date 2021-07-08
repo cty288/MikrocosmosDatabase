@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace MikrocosmosDatabase
 {
      interface ITableManager<T> {
-        bool Add(T obj);
-        T GetById(int id);
+        Task<bool> Add(T obj);
+        Task<T> GetById(int id);
 
-        IList<T> SearchByFieldNames(string[] fieldNames,object[] values);
+        Task<IList<T>> SearchByFieldNames(string[] fieldNames,object[] values);
 
-        bool Remove(T obj);
+        Task<bool> Remove(T obj);
         
-        bool Update(T obj);
+        Task<bool> Update(T obj);
     }
 }

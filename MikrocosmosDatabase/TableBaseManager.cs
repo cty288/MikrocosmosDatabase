@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NHibernate;
 using NHibernate.Criterion;
 using UnityEngine;
@@ -12,15 +13,15 @@ namespace MikrocosmosDatabase {
         /// Insert a data to the table. Returns whether insert success
         /// </summary>
         /// <param name="obj">The inserted data object must have a mapping with NHibernate</param>
-        public virtual bool Add(T obj)
+        public async virtual Task<bool> Add(T obj)
         {
             using (ISession session = NHibernateHelper.Singleton.OpenSession())
             {
                 using (ITransaction traansaction = session.BeginTransaction())
                 {
                     try {
-                        session.Save(obj);
-                        traansaction.Commit();
+                        await session.SaveAsync(obj);
+                        await traansaction.CommitAsync();
                         return true;
                     }
                     catch (Exception e) {
@@ -38,7 +39,7 @@ namespace MikrocosmosDatabase {
         /// <param name="fieldNames">The name of the field in the corresponding Models class of the table</param>
         /// <param name="values">The value of the field to check</param>
         /// <returns>A list of result. Null if not found or has error</returns>
-        public virtual IList<T> SearchByFieldNames(string[] fieldNames, object[] values)
+        public virtual async Task<IList<T>> SearchByFieldNames(string[] fieldNames, object[] values)
         {
             if (fieldNames.Length != values.Length) {
                 Debug.Log("Failed to search by field names, because the lengths of " +
@@ -51,7 +52,7 @@ namespace MikrocosmosDatabase {
                 {
                     using (ITransaction transaction = session.BeginTransaction())
                     {
-                        ICriteria criteria = session.CreateCriteria(typeof(object));
+                        ICriteria criteria = session.CreateCriteria(typeof(T));
 
                         for (int i = 0; i < fieldNames.Length; i++)
                         {
@@ -59,7 +60,7 @@ namespace MikrocosmosDatabase {
                         }
 
 
-                        return criteria.List<T>();
+                        return await criteria.ListAsync<T>();
                     }
                 }
             }
@@ -74,7 +75,7 @@ namespace MikrocosmosDatabase {
         /// <param name="fieldName">The name of the field in the corresponding Models class of the table</param>
         /// <param name="value">The value of the field to check</param>
         /// <returns>A list of result. Null if not found or has error</returns>
-        public virtual IList<T> SearchByFieldName(string fieldName, object value)
+        public virtual async Task<IList<T>> SearchByFieldName(string fieldName, object value)
         {
             try
             {
@@ -82,11 +83,11 @@ namespace MikrocosmosDatabase {
                 {
                     using (ITransaction transaction = session.BeginTransaction())
                     {
-                        ICriteria criteria = session.CreateCriteria(typeof(object));
+                        ICriteria criteria = session.CreateCriteria(typeof(T));
                         
                         criteria.Add(Restrictions.Eq(fieldName, value));
 
-                        return criteria.List<T>();
+                        return await criteria.ListAsync<T>();
                     }
                 }
             }
@@ -102,7 +103,7 @@ namespace MikrocosmosDatabase {
         /// <param name="fieldNames">The name of the field in the corresponding Models class of the table</param>
         /// <param name="values">The value of the field to check</param>
         /// <returns>A list of result. Null if not found or has error</returns>
-        public virtual T SearchByFieldNamesUniqueResult(string[] fieldNames, object[] values)
+        public virtual async Task<T> SearchByFieldNamesUniqueResult(string[] fieldNames, object[] values)
         {
             if (fieldNames.Length != values.Length)
             {
@@ -117,7 +118,7 @@ namespace MikrocosmosDatabase {
                 {
                     using (ITransaction transaction = session.BeginTransaction())
                     {
-                        ICriteria criteria = session.CreateCriteria(typeof(object));
+                        ICriteria criteria = session.CreateCriteria(typeof(T));
 
                         for (int i = 0; i < fieldNames.Length; i++)
                         {
@@ -125,7 +126,7 @@ namespace MikrocosmosDatabase {
                         }
 
 
-                        return criteria.UniqueResult<T>();
+                        return await criteria.UniqueResultAsync<T>();
                     }
                 }
             }
@@ -143,7 +144,7 @@ namespace MikrocosmosDatabase {
         /// <param name="fieldName">The name of the field in the corresponding Models class of the table</param>
         /// <param name="value">The value of the field to check</param>
         /// <returns>A list of result. Null if not found or has error</returns>
-        public virtual T SearchByFieldNameUniqueResult(string fieldName, object value)
+        public virtual async Task<T> SearchByFieldNameUniqueResult(string fieldName, object value)
         {
 
             try
@@ -152,12 +153,12 @@ namespace MikrocosmosDatabase {
                 {
                     using (ITransaction transaction = session.BeginTransaction())
                     {
-                        ICriteria criteria = session.CreateCriteria(typeof(object));
+                        ICriteria criteria = session.CreateCriteria(typeof(T));
 
                         criteria.Add(Restrictions.Eq(fieldName, value));
 
 
-                        return criteria.UniqueResult<T>();
+                        return await criteria.UniqueResultAsync<T>();
                     }
                 }
             }
@@ -173,15 +174,15 @@ namespace MikrocosmosDatabase {
         /// </summary>
         /// <param name="id">The id of the data.</param>
         /// <returns></returns>
-        public virtual T GetById(int id)
+        public virtual async Task<T> GetById(int id)
         {
             try {
                 using (ISession session = NHibernateHelper.Singleton.OpenSession())
                 {
                     using (ITransaction traansaction = session.BeginTransaction())
                     {
-                        T obj = session.Get<T>(id);
-                        traansaction.Commit();
+                        T obj = await session.GetAsync<T>(id);
+                        await traansaction.CommitAsync();
                         return obj;
                     }
                 }
@@ -197,15 +198,15 @@ namespace MikrocosmosDatabase {
         /// </summary>
         /// <param name="obj">The object to remove. Must have a mapping in NHibernate</param>
         /// <returns></returns>
-        public virtual bool Remove(T obj)
+        public virtual async Task<bool> Remove(T obj)
         {
             try {
                 using (ISession session = NHibernateHelper.Singleton.OpenSession())
                 {
                     using (ITransaction traansaction = session.BeginTransaction())
                     {
-                        session.Delete(obj);
-                        traansaction.Commit();
+                        await session.DeleteAsync(obj);
+                        await traansaction.CommitAsync();
                         return true;
                     }
                 }
@@ -222,15 +223,15 @@ namespace MikrocosmosDatabase {
         /// </summary>
         /// <param name="obj">The object to update. Must have a mapping in NHibernate</param>
         /// <returns></returns>
-        public virtual bool Update(T obj)
+        public virtual async Task<bool> Update(T obj)
         {
             try {
                 using (ISession session = NHibernateHelper.Singleton.OpenSession())
                 {
                     using (ITransaction traansaction = session.BeginTransaction())
                     {
-                        session.Update(obj);
-                        traansaction.Commit();
+                        await session.UpdateAsync(obj);
+                        await traansaction.CommitAsync();
                         return true;
                     }
                 }
